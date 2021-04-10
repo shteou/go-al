@@ -22,6 +22,7 @@ type Genome []string
 
 type GenomeState struct {
 	Children uint
+	Energy   float64
 }
 
 func logWithFields(g *GenomeState) *log.Entry {
@@ -33,8 +34,7 @@ func logWithFields(g *GenomeState) *log.Entry {
 func (G Genome) Evaluate() (fitness float64, err error) {
 	index := 0
 
-	g := GenomeState{}
-	g.Children = 0
+	g := GenomeState{Children: 0, Energy: 10.0}
 
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
