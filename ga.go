@@ -39,10 +39,10 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
 		switch gene[0] {
-		case 'A': // Spawn child
-			g.Children += 1
+		case 'A': // No Op
 			logWithFields(&g).Debug("Spawned a child")
-		case 'B': // No Op
+		case 'B': // Spawn Child
+			g.Children += 1
 			logWithFields(&g).Debug("No Op")
 		default:
 			logWithFields(&g).Debug("Unexpected")
@@ -120,9 +120,9 @@ func parseGenomeString(genome string) {
 	for i := 0; i < len(codons); i++ {
 		switch codons[i] {
 		case "A":
-			fmt.Println("Spawn child")
-		case "B":
 			fmt.Println("Nop")
+		case "B":
+			fmt.Println("Spawn Child")
 		}
 	}
 }
