@@ -39,12 +39,12 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
 		switch gene[0] {
-		case 'A': // Attain food
+		case 'A': // Spawn child
 			g.Children += 1
 			logWithFields(&g).Debug("Spawned a child")
 		case 'B': // No Op
 			logWithFields(&g).Debug("No Op")
-		default: // No Op
+		default:
 			logWithFields(&g).Debug("Unexpected")
 		}
 
