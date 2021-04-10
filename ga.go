@@ -14,15 +14,16 @@ import (
 )
 
 var (
-	corpus       = strings.Split("AB", "")
+	corpus       = strings.Split("ABCD", "")
 	genomeLength uint
 )
 
 type Genome []string
 
 type GenomeState struct {
-	Children uint
-	Energy   float64
+	Children  uint
+	Energy    float64
+	FoundFood bool
 }
 
 func logWithFields(g *GenomeState) *log.Entry {
@@ -34,18 +35,43 @@ func logWithFields(g *GenomeState) *log.Entry {
 func (G Genome) Evaluate() (fitness float64, err error) {
 	index := 0
 
-	g := GenomeState{Children: 0, Energy: 10.0}
+	g := GenomeState{Children: 0, Energy: 10.0, FoundFood: false}
 
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
 		switch gene[0] {
 		case 'A': // No Op
-			logWithFields(&g).Debug("Spawned a child")
-		case 'B': // Spawn Child
-			g.Children += 1
 			logWithFields(&g).Debug("No Op")
+		case 'B': // Spawn Child
+			if g.Energy > 5.0 {
+				g.Children += 1
+				logWithFields(&g).Debug("Spawn Child succeeded")
+			} else {
+				logWithFields(&g).Debug("Spawn Child failed")
+			}
+
+			g.Energy -= 5.0
+		case 'C': // Locate Food
+			g.FoundFood = true
+			logWithFields(&g).Debug("Located Food")
+		case 'D': // Eat Food
+			if g.FoundFood {
+				g.Energy += 10.0
+			}
 		default:
 			logWithFields(&g).Debug("Unexpected")
+		}
+
+		if gene != "C" {
+			g.FoundFood = false
+		}
+
+		g.Energy = g.Energy - 1.0
+
+		// Wasted
+		if g.Energy <= 0.0 {
+			logWithFields(&g).Debugf("Died on iteration %d", i)
+			break
 		}
 
 		// Iterate through the genome, looping at the end
@@ -123,6 +149,10 @@ func parseGenomeString(genome string) {
 			fmt.Println("Nop")
 		case "B":
 			fmt.Println("Spawn Child")
+		case "C":
+			fmt.Println("Locate Food")
+		case "D":
+			fmt.Println("Eat Food")
 		}
 	}
 }
