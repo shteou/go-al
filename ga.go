@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	corpus       = strings.Split("ABCDE", "")
+	corpus       = strings.Split("ABCDEF", "")
 	genomeLength uint
 )
 
@@ -26,6 +26,7 @@ type GenomeState struct {
 	Energy    float64
 	FoundFood bool
 	Size      uint
+	Threat    uint
 }
 
 func logWithFields(g *GenomeState) *log.Entry {
@@ -37,7 +38,7 @@ func logWithFields(g *GenomeState) *log.Entry {
 func (G Genome) Evaluate() (fitness float64, err error) {
 	index := 0
 
-	g := GenomeState{Children: 0, Energy: 10.0, FoundFood: false, Size: 1}
+	g := GenomeState{Children: 0, Energy: 10.0, FoundFood: false, Size: 1, Threat: 0}
 
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
@@ -58,11 +59,17 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			logWithFields(&g).Debug("Located Food")
 		case 'D': // Eat Food
 			if g.FoundFood {
-				g.Energy += 10.0 * float64(g.Size)
+				g.Energy += 10.0 * float64(g.Size) / 2.0
+				g.Energy = math.Max(g.Energy, float64(g.Size)*5.0+5.0)
 			}
 		case 'E': // Grow
+			logWithFields(&g).Debug("Growing")
 			g.Energy -= math.Pow(float64(g.Size), 1.05)
 			g.Size += 1
+		case 'F': // Defend
+			logWithFields(&g).Debug("Defending")
+			g.Energy -= 5.0 / float64(g.Size)
+			g.Threat -= 5
 		default:
 			logWithFields(&g).Debug("Unexpected")
 		}
@@ -71,8 +78,12 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			g.FoundFood = false
 		}
 
-		g.Energy = g.Energy - 1.0
+		g.Energy -= 1.0
+		g.Threat += 1.0
 
+		if float64(g.Threat) > (20.0 + float64(g.Size)) {
+			g.Energy -= float64(g.Threat) / float64(g.Size)
+		}
 		// Wasted
 		if g.Energy <= 0.0 {
 			logWithFields(&g).Debugf("Died on iteration %d", i)
@@ -160,6 +171,8 @@ func parseGenomeString(genome string) {
 			fmt.Println("Eat Food")
 		case "E":
 			fmt.Println("Grow")
+		case "F":
+			fmt.Println("Defend")
 		}
 	}
 }
