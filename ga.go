@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	corpus       = strings.Split("ABCD", "")
+	corpus       = strings.Split("ABCDE", "")
 	genomeLength uint
 )
 
@@ -24,6 +25,7 @@ type GenomeState struct {
 	Children  uint
 	Energy    float64
 	FoundFood bool
+	Size      uint
 }
 
 func logWithFields(g *GenomeState) *log.Entry {
@@ -35,7 +37,7 @@ func logWithFields(g *GenomeState) *log.Entry {
 func (G Genome) Evaluate() (fitness float64, err error) {
 	index := 0
 
-	g := GenomeState{Children: 0, Energy: 10.0, FoundFood: false}
+	g := GenomeState{Children: 0, Energy: 10.0, FoundFood: false, Size: 1}
 
 	for i := 0; i < 1000; i++ {
 		gene := G[index]
@@ -43,21 +45,24 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 		case 'A': // No Op
 			logWithFields(&g).Debug("No Op")
 		case 'B': // Spawn Child
-			if g.Energy > 5.0 {
+			if g.Energy > 25.0 {
 				g.Children += 1
 				logWithFields(&g).Debug("Spawn Child succeeded")
 			} else {
 				logWithFields(&g).Debug("Spawn Child failed")
 			}
 
-			g.Energy -= 5.0
+			g.Energy -= 25.0
 		case 'C': // Locate Food
 			g.FoundFood = true
 			logWithFields(&g).Debug("Located Food")
 		case 'D': // Eat Food
 			if g.FoundFood {
-				g.Energy += 10.0
+				g.Energy += 10.0 * float64(g.Size)
 			}
+		case 'E': // Grow
+			g.Energy -= math.Pow(float64(g.Size), 1.05)
+			g.Size += 1
 		default:
 			logWithFields(&g).Debug("Unexpected")
 		}
@@ -108,7 +113,7 @@ func evolveGenomes(len uint64) {
 		return
 	}
 
-	ga.NGenerations = 20
+	ga.NGenerations = 500
 	ga.NPops = 10
 	ga.MigFrequency = 5
 	ga.Migrator = eaopt.MigRing{NMigrants: 5}
@@ -122,7 +127,7 @@ func evolveGenomes(len uint64) {
 		mutex.Lock()
 		defer mutex.Unlock()
 
-		if ga.Generations%5 == 0 {
+		if ga.Generations%50 == 0 {
 			fmt.Printf("%d)\n", ga.Generations)
 		}
 
@@ -153,6 +158,8 @@ func parseGenomeString(genome string) {
 			fmt.Println("Locate Food")
 		case "D":
 			fmt.Println("Eat Food")
+		case "E":
+			fmt.Println("Grow")
 		}
 	}
 }
