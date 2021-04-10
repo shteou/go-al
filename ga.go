@@ -108,7 +108,7 @@ func evolveGenomes(len uint64) {
 		return
 	}
 
-	ga.NGenerations = 10
+	ga.NGenerations = 20
 	ga.NPops = 10
 	ga.MigFrequency = 5
 	ga.Migrator = eaopt.MigRing{NMigrants: 5}
@@ -122,7 +122,7 @@ func evolveGenomes(len uint64) {
 		mutex.Lock()
 		defer mutex.Unlock()
 
-		if ga.Generations%1 == 0 {
+		if ga.Generations%5 == 0 {
 			fmt.Printf("%d)\n", ga.Generations)
 		}
 
