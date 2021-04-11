@@ -114,11 +114,11 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 }
 
 func (G Genome) Mutate(rng *rand.Rand) {
-	eaopt.MutUniformString(G, corpus, 1, rng)
+	eaopt.MutUniformString(G, corpus, 2, rng)
 }
 
 func (G Genome) Crossover(Y eaopt.Genome, rng *rand.Rand) {
-	eaopt.CrossGNXString(G, Y.(Genome), 2, rng)
+	eaopt.CrossGNXString(G, Y.(Genome), 3, rng)
 }
 
 func MakeStrings(rng *rand.Rand) eaopt.Genome {
