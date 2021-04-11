@@ -71,11 +71,11 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			g.Size += 1
 		case 'F': // Defend
 			logWithFields(&g).Debug("Defending")
-			g.Energy -= 5.0 / float64(g.Size)
+			g.Energy -= 5.0 / (float64(g.Size) / 2.0)
 			g.Threat -= 5
 		case 'G': // Evade
 			logWithFields(&g).Debug("Evading")
-			g.Energy -= 1.0 * float64(g.Size)
+			g.Energy -= 1.0 * (float64(g.Size) / 2.0)
 			g.Threat -= 5
 		default:
 			logWithFields(&g).Debug("Unexpected")
