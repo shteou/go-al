@@ -61,8 +61,9 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 				logWithFields(&g).Debug("Ate Food")
 				g.Energy += 10.0 + float64(g.Size)
 				g.Energy = math.Max(g.Energy, float64(g.Size)+15.0)
+			} else {
+				logWithFields(&g).Debug("Eat Food Failed")
 			}
-			logWithFields(&g).Debug("Eat Food Failed")
 		case 'E': // Grow
 			logWithFields(&g).Debug("Growing")
 			g.Energy -= math.Pow(float64(g.Size)/2.0, 1.05)
