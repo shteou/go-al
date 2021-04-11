@@ -85,9 +85,11 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			g.FoundFood = false
 		}
 
-		// Larger organisms require more energy
-		g.Energy -= math.Pow(1.0+float64(g.Size)/40.0, 2.0)
-		g.Threat += 1.0
+		if gene != "A" {
+			// Larger organisms require more energy
+			g.Energy -= math.Pow(1.0+float64(g.Size)/40.0, 2.0)
+			g.Threat += 1.0
+		}
 
 		if float64(g.Threat) > (20.0 + float64(g.Size)) {
 			g.Energy -= float64(g.Threat)
@@ -132,8 +134,9 @@ func evolveGenomes(len uint64) {
 		return
 	}
 
-	ga.NGenerations = 1000
-	ga.NPops = 40
+	ga.NGenerations = 400
+	ga.NPops = 100
+	ga.PopSize = 40
 	ga.MigFrequency = 5
 	ga.Migrator = eaopt.MigRing{NMigrants: 5}
 	ga.ParallelEval = false
