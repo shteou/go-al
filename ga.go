@@ -59,9 +59,12 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			logWithFields(&g).Debug("Located Food")
 		case 'D': // Eat Food
 			if g.FoundFood {
-				g.Energy += 10.0 * float64(g.Size) / 2.0
-				g.Energy = math.Max(g.Energy, float64(g.Size)*5.0+5.0)
+				logWithFields(&g).Debug("Ate Food")
+				g.Energy += 10.0 + float64(g.Size)/2.0
+				g.Energy = math.Max(g.Energy, float64(g.Size)/1.5+15.0)
 			}
+			logWithFields(&g).Debug("Eat Food Failed")
+
 		case 'E': // Grow
 			logWithFields(&g).Debug("Growing")
 			g.Energy -= math.Pow(float64(g.Size), 1.05)
@@ -82,7 +85,8 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			g.FoundFood = false
 		}
 
-		g.Energy -= 1.0
+		// Larger organisms require more energy
+		g.Energy -= math.Pow(1.0+float64(g.Size)/40.0, 2.0)
 		g.Threat += 1.0
 
 		if float64(g.Threat) > (20.0 + float64(g.Size)) {
