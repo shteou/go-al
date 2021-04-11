@@ -26,7 +26,7 @@ type GenomeState struct {
 	Energy    float64
 	FoundFood bool
 	Size      uint
-	Threat    uint
+	Threat    float64
 }
 
 func logWithFields(g *GenomeState) *log.Entry {
@@ -52,7 +52,6 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			} else {
 				logWithFields(&g).Debug("Spawn Child failed")
 			}
-
 			g.Energy -= 25.0
 		case 'C': // Locate Food
 			g.FoundFood = true
@@ -60,19 +59,19 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 		case 'D': // Eat Food
 			if g.FoundFood {
 				logWithFields(&g).Debug("Ate Food")
-				g.Energy += 10.0 + float64(g.Size)/2.0
-				g.Energy = math.Max(g.Energy, float64(g.Size)/1.5+15.0)
+				g.Energy += 10.0 + float64(g.Size)
+				g.Energy = math.Max(g.Energy, float64(g.Size)+15.0)
 			}
 			logWithFields(&g).Debug("Eat Food Failed")
-
 		case 'E': // Grow
 			logWithFields(&g).Debug("Growing")
-			g.Energy -= math.Pow(float64(g.Size), 1.05)
+			g.Energy -= math.Pow(float64(g.Size)/2.0, 1.05)
 			g.Size += 1
 		case 'F': // Defend
 			logWithFields(&g).Debug("Defending")
 			g.Energy -= 5.0 / (float64(g.Size) / 2.0)
 			g.Threat -= 5
+			g.Threat = math.Max(g.Threat, 0.0)
 		case 'G': // Evade
 			logWithFields(&g).Debug("Evading")
 			g.Energy -= 1.0 * (float64(g.Size) / 2.0)
@@ -95,11 +94,12 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			// Larger organisms require more energy
 			g.Energy -= math.Pow(1.0+float64(g.Size)/40.0, 2.0)
 			g.Threat += 1.0
+
+			if float64(g.Threat) > (20.0 + float64(g.Size)) {
+				g.Energy -= float64(g.Threat)
+			}
 		}
 
-		if float64(g.Threat) > (20.0 + float64(g.Size)) {
-			g.Energy -= float64(g.Threat)
-		}
 		// Wasted
 		if g.Energy <= 0.0 {
 			logWithFields(&g).Debugf("Died on iteration %d", i)
