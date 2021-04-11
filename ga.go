@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	corpus       = strings.Split("ABCDEF", "")
+	corpus       = strings.Split("ABCDEFG", "")
 	genomeLength uint
 )
 
@@ -70,6 +70,10 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			logWithFields(&g).Debug("Defending")
 			g.Energy -= 5.0 / float64(g.Size)
 			g.Threat -= 5
+		case 'G': // Evade
+			logWithFields(&g).Debug("Evading")
+			g.Energy -= 1.0 * float64(g.Size)
+			g.Threat -= 5
 		default:
 			logWithFields(&g).Debug("Unexpected")
 		}
@@ -82,7 +86,7 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 		g.Threat += 1.0
 
 		if float64(g.Threat) > (20.0 + float64(g.Size)) {
-			g.Energy -= float64(g.Threat) / float64(g.Size)
+			g.Energy -= float64(g.Threat)
 		}
 		// Wasted
 		if g.Energy <= 0.0 {
@@ -173,6 +177,8 @@ func parseGenomeString(genome string) {
 			fmt.Println("Grow")
 		case "F":
 			fmt.Println("Defend")
+		case "G":
+			fmt.Println("Evade")
 		}
 	}
 }
