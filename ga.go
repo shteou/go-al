@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	corpus       = strings.Split("ABCDEFG", "")
+	corpus       = strings.Split("ABCDEFGH", "")
 	genomeLength uint
 )
 
@@ -77,15 +77,21 @@ func (G Genome) Evaluate() (fitness float64, err error) {
 			logWithFields(&g).Debug("Evading")
 			g.Energy -= 1.0 * (float64(g.Size) / 2.0)
 			g.Threat -= 5
+		case 'H': // Skip if low threat
+			if g.Threat < 5.0 {
+				index++
+			}
 		default:
 			logWithFields(&g).Debug("Unexpected")
 		}
 
-		if gene != "C" {
+		// Lose track of food unless we've just found it, or the gene is a no-op
+		if gene != "C" && gene != "A" && gene != "H" {
 			g.FoundFood = false
 		}
 
-		if gene != "A" {
+		// Skip energy/threat evaluation if no-op
+		if gene != "A" && gene != "H" {
 			// Larger organisms require more energy
 			g.Energy -= math.Pow(1.0+float64(g.Size)/40.0, 2.0)
 			g.Threat += 1.0
@@ -186,6 +192,8 @@ func parseGenomeString(genome string) {
 			fmt.Println("Defend")
 		case "G":
 			fmt.Println("Evade")
+		case "H":
+			fmt.Println("Skip if Low Threat")
 		}
 	}
 }
