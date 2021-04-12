@@ -147,11 +147,12 @@ func evolveGenomes(len uint64) {
 		return
 	}
 
-	ga.NGenerations = 400
-	ga.NPops = 100
-	ga.PopSize = 40
-	ga.MigFrequency = 5
-	ga.Migrator = eaopt.MigRing{NMigrants: 5}
+	ga.NGenerations = 100
+	ga.NPops = 800
+	ga.PopSize = 100
+
+	ga.MigFrequency = 20
+	ga.Migrator = eaopt.MigRing{NMigrants: 10}
 	ga.ParallelEval = false
 
 	winner := ""
@@ -162,7 +163,7 @@ func evolveGenomes(len uint64) {
 		mutex.Lock()
 		defer mutex.Unlock()
 
-		if ga.Generations%100 == 0 {
+		if ga.Generations%20 == 0 {
 			fmt.Printf("%d)\n", ga.Generations)
 		}
 
